@@ -16,6 +16,6 @@ bcc_test: bcc_test.c makefile
 	$(CCOMPL) -O -DLINUX -Wall -s $(INCLUDE_DIRS) -o$@ -static $<
 #
 clean:
-	rm -f *.o
+	rm -f *.o bcc_test
 
 
