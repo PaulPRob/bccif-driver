@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks
+	dav438:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2007.11.09.03.46.29;	author dav438;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# Main makefile for compiling the BCCIF driver
+# Version 1.01
+# Author: Andrew Brown.
+# Notes: To simplify the compilation process multiple files have been created with specific functions
+#        and just included into the main file, rather than compiled seperatly and linked
+
+# Kernel Source files - change accordingly
+KERDIR = /usr2/users/isi_app/linux_pxe/tftp/root/root_development/usr/linux-2.4.25
+
+# Other variable defintions
+CFLAGS = -DLINUX -D__KERNEL__ -DMODULE -I$(KERDIR)/include -O2 -Wall 
+
+# Main rule
+bccif.o: pci.o bccif_serial.o interrupts.o file_ops.o main.o
+	@@echo \#define COMPILE_TIME \"$(shell date)\" > bcc_date.h
+	$(LD) -r $^ -o $@@
+	ls -l $@@
+
+clean:
+	rm -f *.o
+
+remove:
+	/sbin/rmmod bccif
+
+install:
+	/sbin/insmod bccif.o debug=3@

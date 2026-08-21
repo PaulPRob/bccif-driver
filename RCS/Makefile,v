@@ -1,0 +1,68 @@
+head	1.1;
+access;
+symbols;
+locks
+	dav438:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2010.03.09.06.44.07;	author dav438;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@# Main makefile for compiling the BCCIF driver
+# Version 1.01
+# Author: Andrew Brown.
+# Notes: To simplify the compilation process multiple files have been created with specific functions
+#        and just included into the main file, rather than compiled seperatly and linked
+
+# Kernel Source files - change accordingly
+#KERDIR = /usr2/users/isi_app/linux_pxe/tftp/root/root_development/usr/linux-2.4.25
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+PWD       := $(shell pwd)
+obj-m := bccif-2.6.o
+bccif-2.6-objs := pci.o bccif_serial.o interrupts.o file_ops.o main.o
+bccif-2.6-srcs := pci.c bccif_serial.c interrupts.c file_ops.o main.c
+
+# Other variable defintions Can't use this... Module build process spits the dummy!
+#CFLAGS = -DLINUX -D__KERNEL__ -DMODULE -I$(KERDIR)/include -O2 -Wall 
+
+CCOMPL= gcc -V gcc-4.1
+CFLAGD= -O -c -DLINUX -Wall
+KCFLAGD= -O3 -c -DLINUX -fomit-frame-pointer -Wall
+INCLUDE_DIR= -I.
+INCLUDE_DIRS= -I. -I$(KERNELDIR)
+
+# Main rule
+bccif.ko: $(bccif-2.6-srcs) Makefile
+#	echo $(obj-m)
+#	echo $(INCLUDE_DIRS)
+#	echo
+	@@echo \#define COMPILE_TIME \"$(shell date)\" > bccif_date.h
+	$(MAKE) -C $(KERNELDIR)  M=$(PWD)  LDDINCDIR=$(PWD) $(INCLUDE_DIRS) modules
+	cp bccif-2.6.ko bccif.ko
+
+bccif.o: pci.o bccif_serial.o interrupts.o file_ops.o main.o
+	@@echo \#define COMPILE_TIME \"$(shell date)\" > bcc_date.h
+	$(LD) -r $^ -o $@@
+	ls -l $@@
+
+clean:
+	rm -f *.o
+
+remove:
+	/sbin/rmmod bccif
+
+install:
+	/sbin/insmod bccif.o debug=3@

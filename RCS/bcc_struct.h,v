@@ -1,0 +1,67 @@
+head	1.1;
+access;
+symbols;
+locks; strict;
+comment	@ * @;
+
+
+1.1
+date	2006.03.17.00.00.25;	author dav438;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@//////////////////////////////////////////////////////////////////////////////////////
+//                       Informational Global Structures                            //
+//////////////////////////////////////////////////////////////////////////////////////
+
+#ifndef BCC_STRUCT_H
+#define BCC_STRUCT_H
+
+typedef struct {
+	/*Fields used at the master and open level */
+	unsigned long int base_Address;	//Base address of the interface, can be configured to be interface 1, 2 or 3
+  	unsigned long int config_Address;  //Base address of the memory mapped config area
+	int irq;			//IRQ number	
+	
+	/* Open Specific Fields */
+	int minor;	//The device minor number
+	char flags;	//Flags variable holds interrupt status information
+	spinlock_t flaglock;	//Spinlock used to protect the flgas variable from multiple accesses & race conditions
+				
+	/* Master Specific Fields */
+	struct semaphore *sem;	//Pointer to semaphore used to provide atomic access to PCI bus	and atomic access to interrupts that have occured
+	char *IdentString;	//Serial number string	
+	int major;		//The device major number
+
+	/* Shared Information between all opens - specific to each minor */
+	int* owner[BCCIF_BLOCKS];	//Current owner of an opened minor
+	int* open_count[BCCIF_BLOCKS];	//Count of how many opens have been done on the blocks
+	spinlock_t *countlock[BCCIF_BLOCKS];	//Spin lock for the owner and open_count information 	
+		
+} bccif_info_struct;	   //Main information structure of the driver, there is 1 copy for the driver and a new sub copy created every time the driver is opened
+
+//////////////////////////////////////////////////////////////////////////////////////
+//                               Global Constants                                   //
+//////////////////////////////////////////////////////////////////////////////////////
+
+#define NO_IRQ		-1	//Constant that specifies that the current device has no irq or irq handler
+
+/* Flags Variable Definitions */
+#define TIMEOUT			0x10  //Flag constant indicating that a timeout error has occured				
+#define OVERFLOW		0x20  //Flag constant indicaiting that an overflow condition has occured
+#define WB_ERROR		0x40  //Flag constant indiating a wishbone error has occured
+#define FLAGS_MASK		0xFF  //Length of flags variable
+
+#endif
+
+@

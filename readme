@@ -1,0 +1,3 @@
+Assumes that a unsigned short int is always 16 bits
+can handle multiple cards in 1 system
+Interfaces can be opened multiple times by a single user but not by multiple users

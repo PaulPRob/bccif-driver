@@ -1,0 +1,6 @@
+# /dev/bccif1..4 are created by the driver via device_create(); this rule only
+# sets ownership.  Adjust GROUP to whatever the BCC control software runs as.
+#
+# The 2.6 driver required the operator to mknod these nodes by hand - Ubuntu
+# 24.04 has no static /dev, so the driver now registers a class instead.
+SUBSYSTEM=="bccif", KERNEL=="bccif[0-9]*", MODE="0660", GROUP="dialout"

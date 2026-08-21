@@ -1,0 +1,63 @@
+# Makefile for various routines.
+#-----------------------------------------------------------------------
+#SHELL=/bin/sh
+#
+# C compiler and compilation flags
+#
+
+KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+PWD       := $(shell pwd)
+obj-m := pci.o bccif_serial.o interrupts.o file_ops.o main.o
+#KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+#PWD       := $(shell pwd)
+#obj-m := pci.o bccif_serial.o interrupts.o file_ops.o main.o
+
+CFLAGS = -DLINUX -D__KERNEL__ -DMODULE -I$(KERDIR)/include -O2 -Wall 
+
+#CCOMPL= gcc -V gcc-4.1
+CCOMPL= gcc
+CFLAGD= -O -c -DLINUX -Wall
+KCFLAGD= -O3 -c -DLINUX -fomit-frame-pointer -Wall
+INCLUDE_DIR= -I.
+INCLUDE_DIRS= -I. -I$(KERNELDIR)
+#
+#
+
+
+xxx-2.6.o:
+	echo $(obj-m)
+	@echo \#define COMPILE_TIME \"$(shell date)\" > eg_date.h
+	$(MAKE) -C $(KERNELDIR)  M=$(PWD)  LDDINCDIR=$(PWD) $(INCLUDE_DIRS) modules
+
+bccif-2.6.o:
+	echo $(obj-m)
+	echo $(INCLUDE_DIRS)
+	echo
+	@echo \#define COMPILE_TIME \"$(shell date)\" > bccif_date.h
+	$(MAKE) -C $(KERNELDIR)  M=$(PWD)  LDDINCDIR=$(PWD) $(INCLUDE_DIRS) modules
+
+eg-2.6.o:
+	echo $(obj-m)
+	@echo \#define COMPILE_TIME \"$(shell date)\" > eg_date.h
+	$(MAKE) -C $(KERNELDIR)  M=$(PWD)  LDDINCDIR=$(PWD) $(INCLUDE_DIRS) modules
+
+eg.o: eg.c eg.h eg_ioctl.h eg_struct.h makefile
+	@echo \#define COMPILE_TIME \"$(shell date)\" > eg_date.h
+	$(CCOMPL) $(KCFLAGD) $(INCLUDE_DIR) -o$@ $<
+
+test_eg: test_eg.c eg_ioctl.h eg_struct.h makefile
+	$(CCOMPL) -O -DLINUX -Wall -s $(INCLUDE_DIR) -o$@ $< -static -lm
+	ls -l $@
+#
+rem_eg_run: rem_eg_run.c makefile
+	$(CCOMPL) -O -DLINUX -Wall -s $(INCLUDE_DIR) -o$@ $<
+	ls -l $@
+#
+
+#
+clean:
+	rm -f *.o
+
+install:
+	cp eg.o /usr2/tftpboot/.
+
